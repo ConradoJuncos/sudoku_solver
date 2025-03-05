@@ -149,7 +149,7 @@ def solve_sudoku(sudoku):
     else:
         print("No solution found")
     # Prints the sudoku regardless of if it was solved or not
-    print_sudoku(sudoku)
+    # print_sudoku(sudoku)
 
 def test(sudoku):
     print("Test")
@@ -171,24 +171,32 @@ def start_program():
         print("Invalid number of numbers, setting to 17")
         numbers_in_sudoku = 17
     # Creates the sudoku board with n numbers randomly placed
-    print("Creating sudoku")
+    # print("Creating sudoku")
     start_time = time.time()
     sudoku = create_sudoku_with_n_numbers(numbers_in_sudoku)
     end_time = time.time()
-    print("Creating time: {:.4f} seconds".format(end_time - start_time))
-    print("Sudoku created:")
+    # print("Creating time: {:.4f} seconds".format(end_time - start_time))
+    # print("Sudoku created:")
     # Prints the unsolved sudoku
-    print_sudoku(sudoku)
+    # print_sudoku(sudoku)
     start_time = time.time()
     # Solves the sudoku
     solve_sudoku(sudoku)
     end_time = time.time()
     solve_time = end_time - start_time
-    print("Solving time: {:.4f} seconds".format(solve_time))
+    return solve_time
+    # print("Solving time: {:.4f} seconds".format(solve_time))
 
 if __name__ == "__main__":
-    option = 1
-    while option == 1:
-        start_program()
-        option = int(input("Do you want to solve another sudoku? (1 for yes, 0 for no): "))
-    print("Exiting program")
+    counter = 0
+    print("This should run 100 sudokus and keep track of the time it takes to solve them")
+    print("Shows slowest and average time")
+    time_list = []
+    while counter < 100:
+        solve_time = start_program()
+        time_list.append(solve_time)
+        print("Sudoku number: {}".format(counter))
+        counter += 1
+    print("Finished")
+    print("Slowest time: {:.4f} seconds".format(max(time_list)))
+    print("Average time: {:.4f} seconds".format(sum(time_list) / len(time_list)))
