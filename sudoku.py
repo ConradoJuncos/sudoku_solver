@@ -31,29 +31,28 @@ def check_column(sudoku, col):
             seen.add(num)
     return True
 
-def check_square(sudoku):
-    # Made via brute force. Could be optimized to search only the square affected by the insert (using the coordinates to determine
-    #   which square to search)
-    # Also similar behavior to check_row and check_column
-    for box_row in range(0, 9, 3):
-        for box_col in range(0, 9, 3):
-            # Makes a set for every square in steps of 3
-            seen = set()
-            for row in range(3):
-                for col in range(3):
-                    # If the number is in the set, it returns False
-                    # If not, then it adds the number to the set and keeps going
-                    num = sudoku[box_row + row][box_col + col]
-                    if num in seen:
-                        return False
-                    if num != 0:
-                        seen.add(num)
+def get_square_row_and_col(row, col):
+    # Returns the row and column of the top left cell of the square the cell is in
+    return (row // 3) * 3, (col // 3) * 3
+
+def check_square(sudoku, row, col):
+    # Gets the row and column of the top left cell of the square the cell is in
+    square_row, square_col = get_square_row_and_col(row, col)
+    seen = set()
+    # Similar algorithm to check_row and check_column, but for the square
+    for i in range(3):
+        for j in range(3):
+            num = sudoku[square_row + i][square_col + j]
+            if num in seen:
+                return False
+            if num != 0:
+                seen.add(num)
     return True
 
 def check_board(sudoku, row, col):
     # The board will be valid if all rows, columns and squares are valid
     # TODO: Optimize to not check every single row column and square for each inserted number, only the affected ones
-    if check_row(sudoku, row) and check_column(sudoku, col) and check_square(sudoku):
+    if check_row(sudoku, row) and check_column(sudoku, col) and check_square(sudoku, row, col):
         return True
     return False
 
