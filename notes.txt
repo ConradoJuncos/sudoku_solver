@@ -1,0 +1,1 @@
+numba seems to compile the functions with @njit when they are called, so it takes longer to start the program, but it runs much faster. It would be much more useful to have the program not stop, like make it wait for an input that makes it re-generate a new sudoku and keep it going.

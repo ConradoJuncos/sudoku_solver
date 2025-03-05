@@ -1,7 +1,7 @@
 import random
 import time
-# import numpy as np
-# from numba import njit
+import numpy as np
+from numba import njit
 
 def print_sudoku(sudoku):
     for i in range(9):
@@ -11,6 +11,7 @@ def print_sudoku(sudoku):
     print()
     print()
 
+@njit
 def check_row(sudoku, row):
     seen = set()
     for i in range(9):
@@ -20,7 +21,8 @@ def check_row(sudoku, row):
         if num != 0:
             seen.add(num)
     return True
-    
+
+@njit
 def check_column(sudoku, col):
     seen = set()
     for i in range(9):
@@ -31,10 +33,12 @@ def check_column(sudoku, col):
             seen.add(num)
     return True
 
+@njit
 def get_square_row_and_col(row, col):
     # Returns the row and column of the top left cell of the square the cell is in
     return (row // 3) * 3, (col // 3) * 3
 
+@njit
 def check_square(sudoku, row, col):
     # Gets the row and column of the top left cell of the square the cell is in
     square_row, square_col = get_square_row_and_col(row, col)
@@ -49,11 +53,13 @@ def check_square(sudoku, row, col):
                 seen.add(num)
     return True
 
+@njit
 def check_board(sudoku, row, col):
     if check_row(sudoku, row) and check_column(sudoku, col) and check_square(sudoku, row, col):
         return True
     return False
 
+@njit
 def global_check_board(sudoku):
     for i in range(9):
         if not check_row(sudoku, i):
@@ -66,12 +72,12 @@ def global_check_board(sudoku):
                 return False
     return True
 
+@njit
 def create_sudoku_with_n_numbers(n):
-    # For creating sudoku with numpy to use numba for optimization
-    # sudoku = np.zeros((9, 9), dtype=np.int32)
-
+    # Creates the sudoku with numpy to use numba for optimization
     # Creates the sudoku as a 9x9 matrix with all zeros
-    sudoku = [[0 for _ in range(9)] for _ in range(9)]
+    sudoku = np.zeros((9, 9), dtype=np.int32)
+
     # Initializes a counter to keep track of how many numbers have been inserted
     inserted_numbers_counter = 0
 
@@ -94,6 +100,7 @@ def create_sudoku_with_n_numbers(n):
 
     return sudoku
 
+@njit
 def search_closest_zero(sudoku):
     # Searches for closest zero from top left to bottom right via brute force
     # Should send some parameters to tell which columns and rows to ignore (full ones)
@@ -106,6 +113,7 @@ def search_closest_zero(sudoku):
                 return i, j
     return -1, -1
 
+@njit
 def insert_number(sudoku):
     # Searches closest zero and gets its coordinates
     row, col = search_closest_zero(sudoku)
@@ -155,12 +163,17 @@ def test(sudoku):
 
 if __name__ == "__main__":
     numbers_in_sudoku = int(input("Insert the number of numbers in the sudoku (between 0 and 55): "))
-    # numbers_in_sudoku = 25
+    # Used for running the program without input
+    # numbers_in_sudoku = 17
     if numbers_in_sudoku < 0 or numbers_in_sudoku > 55:
         print("Invalid number of numbers, setting to 17")
         numbers_in_sudoku = 17
     # Creates the sudoku board with n numbers randomly placed
+    print("Creating sudoku")
+    start_time = time.time()
     sudoku = create_sudoku_with_n_numbers(numbers_in_sudoku)
+    end_time = time.time()
+    print("Creating time: {:.4f} seconds".format(end_time - start_time))
     print("Sudoku created:")
     # Prints the unsolved sudoku
     print_sudoku(sudoku)
