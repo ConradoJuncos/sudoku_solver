@@ -55,6 +55,7 @@ def check_square(sudoku, row, col):
 
 @njit
 def check_board(sudoku, row, col):
+    # Check if the row, column and square affected by the input are valid
     if check_row(sudoku, row) and check_column(sudoku, col) and check_square(sudoku, row, col):
         return True
     return False
@@ -132,7 +133,8 @@ def insert_number(sudoku):
         # If the board is invalid, sets the cell back to 0 and tries the next number
         sudoku[row][col] = 0
     # If no number can be inserted in the cell, returns False
-    # Note: There is an error in which if there is no possible number to insert in any cell, the program will never stop
+    # Note: (NOT CHECKED, could just take a really long time to finish) There is an error in which if 
+    #   there is no possible number to insert in any cell, the program will never stop
     return False
 
 def solve_sudoku(sudoku):
@@ -161,10 +163,10 @@ def test(sudoku):
     print("End Col")
     print("End Test")
 
-if __name__ == "__main__":
-    numbers_in_sudoku = int(input("Insert the number of numbers in the sudoku (between 0 and 55): "))
+def start_program():
+    # numbers_in_sudoku = int(input("Insert the number of numbers in the sudoku (between 0 and 55): "))
     # Used for running the program without input
-    # numbers_in_sudoku = 17
+    numbers_in_sudoku = 17
     if numbers_in_sudoku < 0 or numbers_in_sudoku > 55:
         print("Invalid number of numbers, setting to 17")
         numbers_in_sudoku = 17
@@ -177,12 +179,16 @@ if __name__ == "__main__":
     print("Sudoku created:")
     # Prints the unsolved sudoku
     print_sudoku(sudoku)
-    # Starts the timer to solve the sudoku
     start_time = time.time()
     # Solves the sudoku
     solve_sudoku(sudoku)
-    # Ends the timer
     end_time = time.time()
-    # Calculates and shows how long it took to solve the sudoku (maybe use a function to do this? not very useful IMO)
     solve_time = end_time - start_time
     print("Solving time: {:.4f} seconds".format(solve_time))
+
+if __name__ == "__main__":
+    option = 1
+    while option == 1:
+        start_program()
+        option = int(input("Do you want to solve another sudoku? (1 for yes, 0 for no): "))
+    print("Exiting program")
