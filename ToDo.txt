@@ -1,8 +1,9 @@
-Change the sudoku creation to make it with numpy so that numba can be used for some better optimized mathematical calculations.
 Improve the sudoku creation. Maybe search for a good algorithm
-Make it so that the program keeps track of which cells have already been tried in search_closest_zero, so that the program doesn't enter an infinite loop
-Improve search_closest_zero so that it skips completed rows, columns and squares
-Improve insert_number so that it skips completed numbers
- - Maybe send a list of 9 numbers that each represents how many of each number have been inserted, so if the second element equals 9, that means i already inserted all the twos (global list? parameters?)
 
-All the checks (check_row, check_column, etc) have been improved, not much i can think of to make them faster or more efficient algorithm-wise
+search_closest_zero:
+1 - don't search everything, keep a list of what has been completed
+2 - keep list of tried cells per cycle to avoid looping
+
+insert_number:
+1 - skip completed numbers
+     - Maybe send a list of 9 numbers that each represents how many of each number have been inserted, so if the second element equals 9, that means i already inserted all the twos (global list? parameters?)
