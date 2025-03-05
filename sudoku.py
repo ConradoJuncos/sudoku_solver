@@ -50,11 +50,21 @@ def check_square(sudoku, row, col):
     return True
 
 def check_board(sudoku, row, col):
-    # The board will be valid if all rows, columns and squares are valid
-    # TODO: Optimize to not check every single row column and square for each inserted number, only the affected ones
     if check_row(sudoku, row) and check_column(sudoku, col) and check_square(sudoku, row, col):
         return True
     return False
+
+def global_check_board(sudoku):
+    for i in range(9):
+        if not check_row(sudoku, i):
+            return False
+        if not check_column(sudoku, i):
+            return False
+    for i in range(0, 9, 3):
+        for j in range(0, 9, 3):
+            if not check_square(sudoku, i, j):
+                return False
+    return True
 
 def create_sudoku_with_n_numbers(n):
     # For creating sudoku with numpy to use numba for optimization
@@ -96,10 +106,6 @@ def search_closest_zero(sudoku):
                 return i, j
     return -1, -1
 
-# TODO: keep a list of already tried cells to avoid trying them again (fixes infinite loop)
-
-# Worst case, insert_number() has time complexity of O(9^81), which is technically O(1), but this is the first
-#   candidate to optimization
 def insert_number(sudoku):
     # Searches closest zero and gets its coordinates
     row, col = search_closest_zero(sudoku)
@@ -125,6 +131,10 @@ def solve_sudoku(sudoku):
     print("Solving sudoku...")
     # Recursive call to insert_number, which will solve the sudoku
     if insert_number(sudoku):
+        # Checks if the sudoku has been correctly solved
+        if not global_check_board(sudoku):
+            print("Invalid solution")
+            return False
         print("Sudoku solved!")
     else:
         print("No solution found")
@@ -162,4 +172,4 @@ if __name__ == "__main__":
     end_time = time.time()
     # Calculates and shows how long it took to solve the sudoku (maybe use a function to do this? not very useful IMO)
     solve_time = end_time - start_time
-    print("Solving time: {:.3f} seconds".format(solve_time))
+    print("Solving time: {:.4f} seconds".format(solve_time))
