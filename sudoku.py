@@ -1,5 +1,7 @@
 import random
 import time
+import numpy as np
+from numba import njit
 
 def print_sudoku(sudoku):
     for i in range(9):
@@ -9,6 +11,7 @@ def print_sudoku(sudoku):
     print()
     print()
 
+@njit
 def check_row(sudoku, row):
     seen = set()
     for i in range(9):
@@ -18,7 +21,8 @@ def check_row(sudoku, row):
         if num != 0:
             seen.add(num)
     return True
-    
+
+@njit
 def check_column(sudoku, col):
     seen = set()
     for i in range(9):
@@ -29,9 +33,11 @@ def check_column(sudoku, col):
             seen.add(num)
     return True
 
+@njit
 def get_square_row_and_col(row, col):
     return (row // 3) * 3, (col // 3) * 3
 
+@njit
 def check_square(sudoku, row, col):
     square_row, square_col = get_square_row_and_col(row, col)
     seen = set()
@@ -44,11 +50,13 @@ def check_square(sudoku, row, col):
                 seen.add(num)
     return True
 
+@njit
 def check_board(sudoku, row, col):
     if check_row(sudoku, row) and check_column(sudoku, col) and check_square(sudoku, row, col):
         return True
     return False
 
+@njit
 def global_check_board(sudoku):
     for i in range(9):
         if not check_row(sudoku, i):
@@ -62,7 +70,7 @@ def global_check_board(sudoku):
     return True
 
 def create_sudoku_with_n_numbers(n):
-    sudoku = [
+    sudoku = np.array([
     [0, 0, 0, 7, 0, 0, 0, 0, 1],
     [0, 8, 0, 0, 0, 0, 0, 0, 4],
     [0, 6, 0, 0, 0, 9, 0, 0, 7],
@@ -72,10 +80,16 @@ def create_sudoku_with_n_numbers(n):
     [0, 0, 7, 0, 0, 0, 8, 0, 9],
     [0, 0, 0, 6, 9, 4, 1, 0, 0],
     [4, 0, 0, 2, 0, 0, 0, 0, 0]
-]
+    ])
 
     return sudoku
 
+# 39 seconds with normal matrix
+# 129 seconds with numpy array
+# 7.9 seconds with numba
+# GOAL: 1 second
+
+@njit
 def search_closest_zero(sudoku):
     for i in range(9):
         for j in range(9):
@@ -83,6 +97,7 @@ def search_closest_zero(sudoku):
                 return i, j
     return -1, -1
 
+@njit
 def insert_number(sudoku):
     row, col = search_closest_zero(sudoku)
     if row == -1 and col == -1:
