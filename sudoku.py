@@ -11,30 +11,24 @@ def print_sudoku(sudoku):
     print()
     print()
 
-def check_row(sudoku):
-    for row in sudoku:
-        # Creates a set of seen numbers for every row in the board
-        seen = set()
-        for num in row:
-            # If the number has been added to the seen set, it is already on the row, and therefor the row is invalid
-            if num in seen:
-                return False
-            # If the number is not 0, it is added to the seen set
-            if num != 0:
-                seen.add(num)
+def check_row(sudoku, row):
+    seen = set()
+    for i in range(9):
+        num = sudoku[row][i]
+        if num in seen:
+            return False
+        if num != 0:
+            seen.add(num)
     return True
-
-def check_column(sudoku):
-    # Similar behavior to check_row, but for columns
-    # Differences lay in the way the columns are accessed
-    for col in range(9):
-        seen = set()
-        for row in range(9):
-            num = sudoku[row][col]
-            if num in seen:
-                return False
-            if num != 0:
-                seen.add(num)
+    
+def check_column(sudoku, col):
+    seen = set()
+    for i in range(9):
+        num = sudoku[i][col]
+        if num in seen:
+            return False
+        if num != 0:
+            seen.add(num)
     return True
 
 def check_square(sudoku):
@@ -56,10 +50,10 @@ def check_square(sudoku):
                         seen.add(num)
     return True
 
-def check_board(sudoku):
+def check_board(sudoku, row, col):
     # The board will be valid if all rows, columns and squares are valid
     # TODO: Optimize to not check every single row column and square for each inserted number, only the affected ones
-    if check_row(sudoku) and check_column(sudoku) and check_square(sudoku):
+    if check_row(sudoku, row) and check_column(sudoku, col) and check_square(sudoku):
         return True
     return False
 
@@ -82,7 +76,7 @@ def create_sudoku_with_n_numbers(n):
         if sudoku[row][col] == 0:
             # If the cell is empty, inserts the number and checks if the board is still valid
             sudoku[row][col] = num
-            if check_board(sudoku):
+            if check_board(sudoku, row, col):
                 # Adds one to the inserted numbers counter
                 inserted_numbers_counter += 1
             else:
@@ -103,25 +97,27 @@ def search_closest_zero(sudoku):
                 return i, j
     return -1, -1
 
+# TODO: keep a list of already tried cells to avoid trying them again (fixes infinite loop)
+
 # Worst case, insert_number() has time complexity of O(9^81), which is technically O(1), but this is the first
 #   candidate to optimization
 def insert_number(sudoku):
     # Searches closest zero and gets its coordinates
-    coord_row, coord_col = search_closest_zero(sudoku)
+    row, col = search_closest_zero(sudoku)
     # If no more zeros are found, the coordinates are -1 -1 and the sudoku is solved, returns True and cuts the recursion
-    if coord_row == -1 and coord_col == -1:
+    if row == -1 and col == -1:
         return True
 
     # Inserts every possible number in the cell
     for i in range(9):
-        sudoku[coord_row][coord_col] = i + 1
+        sudoku[row][col] = i + 1
         # Checks if inserting the number makes the board into an invalid state
-        if check_board(sudoku):
+        if check_board(sudoku, row, col):
             # If the board is valid, recursively calls the function to insert the next number
             if insert_number(sudoku):
                 return True
         # If the board is invalid, sets the cell back to 0 and tries the next number
-        sudoku[coord_row][coord_col] = 0
+        sudoku[row][col] = 0
     # If no number can be inserted in the cell, returns False
     # Note: There is an error in which if there is no possible number to insert in any cell, the program will never stop
     return False
@@ -135,6 +131,18 @@ def solve_sudoku(sudoku):
         print("No solution found")
     # Prints the sudoku regardless of if it was solved or not
     print_sudoku(sudoku)
+
+def test(sudoku):
+    print("Test")
+    print("Row 0 ")
+    for i in range(9):
+        print(sudoku[0][i], end=' ')
+    print("End Row")
+    print("Col 0 ")
+    for i in range(9):
+        print(sudoku[i][0], end=' ')
+    print("End Col")
+    print("End Test")
 
 if __name__ == "__main__":
     numbers_in_sudoku = int(input("Insert the number of numbers in the sudoku (between 0 and 55): "))
