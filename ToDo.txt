@@ -2,7 +2,6 @@ Improve the sudoku creation. Maybe search for a good algorithm
 
 search_closest_zero:
 1 - don't search everything, keep a list of what has been completed
-2 - keep list of tried cells per cycle to avoid looping
 
 insert_number:
 1 - skip completed numbers

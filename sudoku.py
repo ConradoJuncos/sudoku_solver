@@ -74,7 +74,7 @@ def global_check_board(sudoku):
     return True
 
 @njit
-def create_sudoku_with_n_numbers(n):
+def create_sudoku_with_n_numbers(n, inserts):
     # Creates the sudoku with numpy to use numba for optimization
     # Creates the sudoku as a 9x9 matrix with all zeros
     sudoku = np.zeros((9, 9), dtype=np.int32)
@@ -95,11 +95,12 @@ def create_sudoku_with_n_numbers(n):
             if check_board(sudoku, row, col):
                 # Adds one to the inserted numbers counter
                 inserted_numbers_counter += 1
+                inserts[num - 1] += 1
             else:
                 # If the board is invalid, sets the cell back to 0 and doesn't add to the counter
                 sudoku[row][col] = 0
 
-    return sudoku
+    return sudoku, inserts
 
 @njit
 def search_closest_zero(sudoku):
@@ -115,32 +116,33 @@ def search_closest_zero(sudoku):
     return -1, -1
 
 @njit
-def insert_number(sudoku):
+def insert_number(sudoku, inserts):
     # Searches closest zero and gets its coordinates
     row, col = search_closest_zero(sudoku)
     # If no more zeros are found, the coordinates are -1 -1 and the sudoku is solved, returns True and cuts the recursion
     if row == -1 and col == -1:
-        return True
+        return True, inserts
 
     # Inserts every possible number in the cell
     for i in range(9):
         sudoku[row][col] = i + 1
         # Checks if inserting the number makes the board into an invalid state
         if check_board(sudoku, row, col):
+            inserts[i] += 1
             # If the board is valid, recursively calls the function to insert the next number
-            if insert_number(sudoku):
-                return True
+            if insert_number(sudoku, inserts)[0]:
+                return True, inserts
         # If the board is invalid, sets the cell back to 0 and tries the next number
         sudoku[row][col] = 0
     # If no number can be inserted in the cell, returns False
     # Note: (NOT CHECKED, could just take a really long time to finish) There is an error in which if 
     #   there is no possible number to insert in any cell, the program will never stop
-    return False
+    return False, inserts
 
-def solve_sudoku(sudoku):
+def solve_sudoku(sudoku, inserts):
     print("Solving sudoku...")
     # Recursive call to insert_number, which will solve the sudoku
-    if insert_number(sudoku):
+    if insert_number(sudoku, inserts)[0]:
         # Checks if the sudoku has been correctly solved
         if not global_check_board(sudoku):
             print("Invalid solution")
@@ -173,7 +175,11 @@ def start_program():
     # Creates the sudoku board with n numbers randomly placed
     print("Creating sudoku")
     start_time = time.time()
-    sudoku = create_sudoku_with_n_numbers(numbers_in_sudoku)
+    # Creates three lists with 9 zeros to show the number of inserts of each number, row and column
+    inserts = [0] * 9
+    # row_inserts = [0] * 9
+    # col_inserts = [0] * 9
+    sudoku, inserts = create_sudoku_with_n_numbers(numbers_in_sudoku, inserts)
     end_time = time.time()
     print("Creating time: {:.4f} seconds".format(end_time - start_time))
     print("Sudoku created:")
@@ -181,7 +187,8 @@ def start_program():
     print_sudoku(sudoku)
     start_time = time.time()
     # Solves the sudoku
-    solve_sudoku(sudoku)
+    solve_sudoku(sudoku, inserts)
+    print("Inserts: ", inserts)
     end_time = time.time()
     solve_time = end_time - start_time
     print("Solving time: {:.4f} seconds".format(solve_time))
